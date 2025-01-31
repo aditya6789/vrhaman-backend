@@ -1,0 +1,233 @@
+{
+    "info": {
+      "name": "Make & VehicleModel API",
+      "_postman_id": "12345678-1234-5678-1234-567812345678",
+      "description": "Postman collection for Make and VehicleModel CRUD API",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Make",
+        "item": [
+          {
+            "name": "Create Make",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"Toyota\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:5000/make-model/make",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "make"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get All Makes",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:5000/make-model/make",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "make"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Update Make",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"Honda\"\n}"
+              },
+              "url": {
+                "raw": "http://localhost:5000/make-model/make/:id",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "make", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "make_id"
+                  }
+                ]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Make",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:5000/make-model/make/:id",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "make", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "make_id"
+                  }
+                ]
+              }
+            },
+            "response": []
+          }
+        ]
+      },
+      {
+        "name": "VehicleModel",
+        "item": [
+          {
+            "name": "Create Vehicle Model",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"make\": \"Toyota\",\n  \"model\": \"Camry\",\n  \"type\": \"Sedan\",\n  \"variants\": [\"LE\", \"SE\", \"XSE\"]\n}"
+              },
+              "url": {
+                "raw": "http://localhost:5000/make-model/vehicle-model",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "vehicle-model"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get All Vehicle Models",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:5000/make-model/vehicle-model",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "vehicle-model"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Update Vehicle Model",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"model\": \"Corolla\",\n  \"type\": \"Hatchback\",\n  \"variants\": [\"L\", \"LE\", \"XLE\"]\n}"
+              },
+              "url": {
+                "raw": "http://localhost:5000/make-model/vehicle-model/:id",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "vehicle-model", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "vehicle_model_id"
+                  }
+                ]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Vehicle Model",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:5000/make-model/vehicle-model/:id",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["make-model", "vehicle-model", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "vehicle_model_id"
+                  }
+                ]
+              }
+            },
+            "response": []
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "key": "access_token",
+        "value": ""
+      }
+    ]
+  }
+  

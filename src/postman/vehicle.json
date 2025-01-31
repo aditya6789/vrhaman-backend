@@ -1,0 +1,146 @@
+{
+    "info": {
+      "name": "Vehicle API",
+      "_postman_id": "23456789-2345-6789-2345-678923456789",
+      "description": "Postman collection for Vehicle CRUD API",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Vehicle",
+        "item": [
+          {
+            "name": "Get All Vehicles",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:5000/api/vehicles",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["api", "vehicles"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Get Vehicle Details",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "http://localhost:5000/api/vehicles/:id",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["api", "vehicles", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "vehicle_id"
+                  }
+                ]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Create Vehicle",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"Honda Civic\",\n  \"type\": \"Car\",\n  \"model\": \"Civic\",\n  \"year\": 2022,\n  \"price_per_day\": 100,\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [-122.4194, 37.7749]\n  }\n}"
+              },
+              "url": {
+                "raw": "http://localhost:5000/api/vehicles",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["api", "vehicles"]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Update Vehicle",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"Honda Civic\",\n  \"type\": \"Car\",\n  \"year\": 2021,\n  \"price_per_day\": 90\n}"
+              },
+              "url": {
+                "raw": "http://localhost:5000/api/vehicles/:id",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["api", "vehicles", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "vehicle_id"
+                  }
+                ]
+              }
+            },
+            "response": []
+          },
+          {
+            "name": "Delete Vehicle",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{access_token}}"
+                }
+              ],
+              "url": {
+                "raw": "http://localhost:5000/api/vehicles/:id",
+                "protocol": "http",
+                "host": ["localhost"],
+                "port": "5000",
+                "path": ["api", "vehicles", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "vehicle_id"
+                  }
+                ]
+              }
+            },
+            "response": []
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "key": "access_token",
+        "value": ""
+      }
+    ]
+  }
+  

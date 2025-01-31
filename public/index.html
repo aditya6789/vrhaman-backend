@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.IO Test</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .log { 
+      height: 300px; 
+      overflow-y: scroll; 
+      border: 1px solid #ccc; 
+      padding: 10px;
+      margin: 10px 0;
+    }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Socket.IO Connection Test</h1>
+
+  <div>
+    <label for="token">JWT Token:</label>
+    <input type="text" id="token" style="width: 300px;" placeholder="Enter your JWT token">
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+  </div>
+
+  <div>
+    <label for="role">Role:</label>
+    <select id="role">
+      <option value="vendor">Vendor</option>
+      <option value="customer">Customer</option>
+    </select>
+    <input type="text" id="userId" placeholder="Enter user ID">
+    <button onclick="register()">Register</button>
+  </div>
+
+  <h3>Connection Log:</h3>
+  <div id="log" class="log"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket;
+
+    function addToLog(message, isError = false) {
+      const log = document.getElementById('log');
+      const div = document.createElement('div');
+      div.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+      div.className = isError ? 'error' : 'success';
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function connect() {
+      const token = document.getElementById('token').value;
+      if (!token) {
+        addToLog('Please enter a JWT token', true);
+        return;
+      }
+
+      socket = io('http://localhost:5000', {
+        auth: {
+          token: token
+        }
+      });
+
+      // Connection events
+      socket.on('connect', () => {
+        addToLog('Connected to server');
+      });
+
+      socket.on('connected', (data) => {
+        addToLog(`Server confirmed connection: ${JSON.stringify(data)}`);
+      });
+
+      socket.on('connect_error', (error) => {
+        addToLog(`Connection error: ${error.message}`, true);
+      });
+
+      socket.on('error', (error) => {
+        addToLog(`Socket error: ${error.message}`, true);
+      });
+
+      // Booking notifications
+      socket.on('newBooking', (bookingData) => {
+        addToLog(`New booking received: ${JSON.stringify(bookingData)}`);
+      });
+
+      socket.on('registered', (response) => {
+        addToLog(`Registration response: ${JSON.stringify(response)}`);
+      });
+
+      socket.on('disconnect', () => {
+        addToLog('Disconnected from server', true);
+      });
+    }
+
+    function disconnect() {
+      if (socket) {
+        socket.disconnect();
+        addToLog('Manually disconnected');
+      }
+    }
+
+    function register() {
+      if (!socket?.connected) {
+        addToLog('Please connect first', true);
+        return;
+      }
+
+      const role = document.getElementById('role').value;
+      const userId = document.getElementById('userId').value;
+
+      if (!userId) {
+        addToLog('Please enter a user ID', true);
+        return;
+      }
+
+      socket.emit('register', {
+        vendorId: userId,
+        role: role
+      });
+      addToLog(`Registering as ${role} with ID: ${userId}`);
+    }
+  </script>
+</body>
+</html>
