@@ -24,7 +24,7 @@ router.delete("/vehicle-vendor/:id", VendorVehicleController.deleteVendorVehicle
 
 router.get("/", getAllVehicles);
 router.get("/:id", getVehicleDetails);
-router.get("/:make", getVehicleByMake);
+router.get("/make/:make", getVehicleByMake);
 router.post("/", createVehicle);
 router.put("/:id", updateVehicle);
 router.delete("/:id", deleteVehicle);

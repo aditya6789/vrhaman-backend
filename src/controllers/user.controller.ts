@@ -129,11 +129,43 @@ export const userController = {
     }
   },
   async addAddress(req: AuthenticatedRequest, res: Response) {
-    const address = req.body;
-    const userId = req.user?._id;
-    const newAddress = new addressModel({ user_id: userId, ...address });
-    await newAddress.save();
-    return res.status(200).json(successResponse("Address added successfully", newAddress));
+    try {
+      const { address, city, state, postalCode, latitude, longitude, isDefault } = req.body;
+      const userId = req.user?._id;
+
+      if (!userId) {
+        return res.status(400).json(failureResponse("User not found"));
+      }
+
+      let userAddress = await addressModel.findOne({ user_id: userId });
+
+      const newAddressData = {
+        address,
+        city, 
+        state,
+        postalCode,
+        isDefault: isDefault || false,
+        latitude,
+        longitude
+      };
+
+      if (!userAddress) {
+        userAddress = await addressModel.create({
+          user_id: userId,
+          addresses: [newAddressData]
+        });
+      } else {
+        if (isDefault) {
+          userAddress.addresses.forEach(addr => addr.isDefault = false);
+        }
+        userAddress.addresses.push(newAddressData);
+        await userAddress.save();
+      }
+
+      return res.status(200).json(successResponse("Address added successfully", userAddress));
+    } catch (error: any) {
+      return res.status(500).json(failureResponse(error.message));
+    }
   },
 
   async getAddress(req: AuthenticatedRequest, res: Response) {

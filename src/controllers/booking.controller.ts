@@ -35,6 +35,7 @@ const createBooking = async (req: AuthenticatedRequest, res: Response) => {
     customer_id: Joi.string().required(),
     vendor_id: Joi.string().required(),
     payment_type: Joi.string().required(),
+    address_id: Joi.string().allow(null),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -43,7 +44,7 @@ const createBooking = async (req: AuthenticatedRequest, res: Response) => {
   if (error)
     return res.status(400).json(failureResponse(error.details[0].message));
 
-  const { vehicle_id, start_date, duration, start_time, delivery  , payment_type} = value;
+  const { vehicle_id, start_date, duration, start_time, delivery  , payment_type , address_id } = value;
   // console.log("vehicle_id", vehicle_id);
 
   const isVehicleAvailable = async (
@@ -167,6 +168,7 @@ const createBooking = async (req: AuthenticatedRequest, res: Response) => {
         total_price,
         partial_payment,
         payment_type,
+        address_id:address_id,
       });
       await booking.save();
       console.log('booking save' , booking);
@@ -320,13 +322,22 @@ const createBooking = async (req: AuthenticatedRequest, res: Response) => {
         .populate("customer_id", "name email phone")
         .populate("vendor_id", "user_id business_name business_address")
         .exec();
+      const address = await addressModel.findOne(
+        { "addresses._id": booking.address_id },
+        { "addresses.$": 1 }
+      );
+      console.log("address", address?.addresses[0]);
 
 
       // Emit booking data via socket
       await notifyVendor(booking.vendor_id.toString(), {
         type: 'new_booking',
-        data: populatedBooking
+        data: {
+          booking: populatedBooking,
+          address: address
+        }
       });
+
 
       // Get customer and vendor FCM tokens
       const customerToken = await notificationTokenModel.findOne({
@@ -701,7 +712,10 @@ const getVendorBookingsDetails = async (req: AuthenticatedRequest, res: Response
       return res.status(404).json(failureResponse("Booking not found"));
     }
 
-    const address = await addressModel.findOne({user_id: bookings.customer_id});
+    const address = await addressModel.findOne(
+      { "addresses._id": bookings.address_id },
+      { "addresses.$": 1 }
+    );
   console.log("bookings", bookings);
   console.log("address", address);
   return res

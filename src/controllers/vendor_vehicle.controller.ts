@@ -5,6 +5,7 @@ import { Request as ExpressRequest } from 'express';
 import { AuthenticatedRequest } from "../types/auth";
 import vendorModel from "../models/vendor.model";
 import bookingModel from "../models/booking.model";
+import vendor_vehicle_privact_policyModel from "../models/vendor_vehicle_privact_policy.model";
 
 
 const VendorVehicleController = {
@@ -215,8 +216,11 @@ const VendorVehicleController = {
     console.log("Running getVehicleDetails");
     const { id } = req.query;
     const vendorVehicle = await VendorVehicle.findById(id).populate('vehicle_id').populate('vendor_id');
-    res.status(200).json(successResponse("Vendor vehicle fetched successfully.", { vendorVehicle }));
+    const privacyPolicy = await vendor_vehicle_privact_policyModel.findOne({vendor_id: vendorVehicle?.vendor_id});
+    console.log("privacyPolicy", privacyPolicy);
+    res.status(200).json(successResponse("Vendor vehicle fetched successfully.", { vendorVehicle , privacyPolicy }));
   },
+
 
   // get vendor vehicle by id
   async getVendorVehicleById(req: Request, res: Response) {

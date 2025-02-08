@@ -72,13 +72,13 @@ connectDB()
     });
 
     io.on("connection", (socket: AuthSocket) => {
-      console.log("New connection: ", socket.id);
-      console.log("Handshake auth: ", socket.handshake.auth);
+      // console.log("New connection: ", socket.id);
+      // console.log("Handshake auth: ", socket.handshake.auth);
     });
 
     // Connection handler
     io.on("connection", (socket: AuthSocket) => {
-      console.log("New socket connection:", socket.id);
+      // console.log("New socket connection:", socket.id);
       
       socket.emit('connected', { message: 'Successfully connected' });
 
@@ -113,6 +113,7 @@ connectDB()
       });
 
       socket.on("register-customer",async (data: { customerId: string, role: string }) => {
+        console.log("Customer registered:", data);
         try {
           await SocketConnection.deleteMany({ userId: data.customerId, userType: data.role });
           await SocketConnection.create({

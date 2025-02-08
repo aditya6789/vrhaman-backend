@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import VendorVehicle from '../models/vendor_vehicle.model';
 import vendorModel from '../models/vendor.model';
+import reviewModel from '../models/review.model';
+import { getDistanceAndETA } from '../utils/distance';
 
 // Helper function to convert km to meters
 const kmToMeters = (km: number) => km * 1000;
@@ -27,7 +29,11 @@ export const searchVehicles = async (req: Request, res: Response) => {
   try {
     const { location, startDate, duration, vehicleType } = req.body;
     console.log("Received location:", location);
+    console.log("vehicleType", vehicleType);
+
+    console.log("startDate", startDate);
     const searchRadius = 20; // 20km radius
+
 
     // Parse location
     let searchLat: number | null = null;
@@ -148,21 +154,39 @@ export const searchVehicles = async (req: Request, res: Response) => {
       return (docs.filter(doc => doc.vehicle_id !== null) as unknown as VehicleWithVendor[]);
     });
 
+    const vehiclesWithReviews = await Promise.all(vehicles.map(async vehicle => {
+      const reviews = await reviewModel.find({ vehicleId: vehicle._id }).exec();
+      const averageRating = reviews.length > 0 
+          ? reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length 
+          : 0;
+      return {  average_rating: Number(averageRating.toFixed(1)) };
+
+    }));
+
     // Calculate distance for each vehicle and add to response
-    const vehiclesWithDistance = vehicles.map(vehicle => {
+
+    const vehiclesWithDistance = await Promise.all(vehicles.map(async vehicle => {
       if (searchLat !== null && searchLng !== null && vehicle.vendor_id?.pickup_location) {
         const vendorLat = vehicle.vendor_id.pickup_location.latitude;
         const vendorLng = vehicle.vendor_id.pickup_location.longitude;
-        const distance = calculateDistance(
+        const distance = await getDistanceAndETA(
           searchLat,
           searchLng,
           vendorLat,
           vendorLng
         );
-        return { ...vehicle, distance: Math.round(distance * 10) / 10 };
+
+
+        const reviews = await reviewModel.find({ vehicleId: vehicle._id }).exec();
+        const averageRating = reviews.length > 0 
+            ? reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length 
+            : 0;
+
+        return { ...vehicle, distance: distance, average_rating: Number(averageRating.toFixed(1)) };
       }
       return vehicle;
-    });
+    }));
+
 
     // Sort by distance if location provided
     if (searchLat !== null && searchLng !== null) {

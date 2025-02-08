@@ -4,6 +4,7 @@ import VendorVehicle from '../models/vendor_vehicle.model';
 import BookingModel from '../models/booking.model';
 import { successResponse, failureResponse } from '../utils/response';
 import mongoose from 'mongoose';
+import reviewModel from '../models/review.model';
 
 export class VehiclePreferenceController {
     // Get Popular Bikes
@@ -28,7 +29,13 @@ export class VehiclePreferenceController {
                 },
                 {
                     $match: {
-                        'vehicleDetails.type': 'Bike'
+                        'vehicleDetails.type': 'Bike',
+                        'bookings': { $exists: true, $ne: [] } // Only get bikes that have bookings
+                    }
+                },
+                {
+                    $addFields: {
+                        booking_count: { $size: '$bookings' }
                     }
                 },
                 {
@@ -38,19 +45,35 @@ export class VehiclePreferenceController {
                         images: 1,
                         daily_rate: 1,
                         availability_status: 1,
-                        booking_count: { $size: '$bookings' },
+                        booking_count: 1,
                         vehicleDetails: { $arrayElemAt: ['$vehicleDetails', 0] }
                     }
                 },
                 {
-                    $sort: { booking_count: -1 }
+                    $sort: { booking_count: -1 } // Sort by most bookings first
                 },
                 {
-                    $limit: 10
+                    $limit: 10 // Get top 10 most booked bikes
                 }
             ]);
 
-            return res.status(200).json(successResponse('Popular bikes retrieved successfully', popularBikes));
+            const bikesWithRatings :any = await Promise.all(popularBikes.map(async bike => {
+                const reviews = await reviewModel.find({vehicleId: bike._id}).exec();
+                const avgRating = reviews.length > 0 
+                    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+                    : 0
+                return {
+                    ...bike,
+                    average_rating: Number(avgRating.toFixed(1)),
+                    review_count: reviews.length
+                };
+            }));
+            
+            
+
+            
+
+            return res.status(200).json(successResponse('Popular bikes retrieved successfully',  bikesWithRatings));
         } catch (error) {
             console.error('Error getting popular bikes:', error);
             return res.status(500).json(failureResponse('Error retrieving popular bikes'));
@@ -79,7 +102,13 @@ export class VehiclePreferenceController {
                 },
                 {
                     $match: {
-                        'vehicleDetails.type': 'Car'
+                        'vehicleDetails.type': 'car',
+                        'bookings': { $exists: true, $ne: [] } // Only get bikes that have bookings
+                    }
+                },
+                {
+                    $addFields: {
+                        booking_count: { $size: '$bookings' }
                     }
                 },
                 {
@@ -89,19 +118,34 @@ export class VehiclePreferenceController {
                         images: 1,
                         daily_rate: 1,
                         availability_status: 1,
-                        booking_count: { $size: '$bookings' },
+                        booking_count: 1,
                         vehicleDetails: { $arrayElemAt: ['$vehicleDetails', 0] }
                     }
                 },
                 {
-                    $sort: { booking_count: -1 }
+                    $sort: { booking_count: -1 } // Sort by most bookings first
                 },
                 {
-                    $limit: 10
+                    $limit: 10 // Get top 10 most booked bikes
                 }
             ]);
 
-            return res.status(200).json(successResponse('Popular cars retrieved successfully', popularCars));
+            const carsWithRatings :any = await Promise.all(popularCars.map(async car => {
+                const reviews = await reviewModel.find({vehicleId: car._id}).exec();
+                const avgRating = reviews.length > 0 
+                    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+
+                    : 0
+                return {
+                    ...car,
+                    average_rating: Number(avgRating.toFixed(1)),
+                    review_count: reviews.length
+                };
+
+            }));
+
+            return res.status(200).json(successResponse('Popular cars retrieved successfully', carsWithRatings));
+
         } catch (error) {
             console.error('Error getting popular cars:', error);
             return res.status(500).json(failureResponse('Error retrieving popular cars'));
@@ -116,18 +160,30 @@ export class VehiclePreferenceController {
                 return res.status(401).json(failureResponse('User not authenticated'));
             }
 
-            // Get user's booking history
             const userBookings = await BookingModel.find({ customer_id: userId });
-            console.log(userBookings);
             const vehicleIds = userBookings.map(booking => booking.vehicle_id);
-            console.log(vehicleIds);
 
-            // Find similar vehicles based on user's booking history
             const preferredVehicles = await VendorVehicle.find({
                 '_id': { $in: vehicleIds }
-            }).populate('vehicle_id');
+            }).populate('vehicle_id').lean(); // Add lean() to get plain objects
 
-            return res.status(200).json(successResponse('User preferred vehicles retrieved successfully', preferredVehicles));
+            const preferredVehiclesWithRatings = await Promise.all(preferredVehicles.map(async vehicle => {
+                const reviews = await reviewModel.find({ vehicleId: vehicle._id }).lean();
+                const avgRating = reviews.length > 0 
+                    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+                    : 0;
+
+                return {
+                    ...vehicle,
+                    average_rating: Number(avgRating.toFixed(1)),
+                    review_count: reviews.length
+                };
+            }));
+
+            return res.status(200).json(successResponse(
+                'User preferred vehicles retrieved successfully', 
+                preferredVehiclesWithRatings
+            ));
         } catch (error) {
             console.error('Error getting user preferred vehicles:', error);
             return res.status(500).json(failureResponse('Error retrieving user preferred vehicles'));

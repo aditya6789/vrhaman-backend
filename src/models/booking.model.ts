@@ -4,10 +4,12 @@ export interface IBooking extends Document {
   customer_id: mongoose.Types.ObjectId;
   vehicle_id: mongoose.Types.ObjectId;
   vendor_id: mongoose.Types.ObjectId;
+  address_id: string;
   start_date: Date;
   start_time: string;
   duration: String;
   end_date: Date;
+
   status: "Pending" | "Accepted" | "Rejected" | "Confirmed" | "Ongoing" | "Completed" | "Cancelled";
   total_price: number;
   partial_payment: number;
@@ -34,11 +36,15 @@ const bookingSchema: Schema<IBooking> = new mongoose.Schema({
     ref: "Vendor",
     required: true,
   },
-
+  address_id: {
+   type: String,
+   required: false,
+  },
   start_date: { type: Date, required: true },
   start_time: { type: String, required: true },
   end_date: { type: Date, required: true },
   duration: { type: String, required: true },
+
   status: {
     type: String,
     enum: ["Pending", "Accepted", "Rejected","Confirmed","Ongoing", "Completed", "Cancelled"],

@@ -18,11 +18,13 @@ router.get('/:userId/:userType', async (req: Request, res: Response) => {
     console.log("connection", connection);
 
     if (!connection) {
-      return res.status(200).json(successResponse('Socket connection not found'));
+      return res.status(404).json(failureResponse('Socket connection not found', {
+      }));
+      
     }
+     res.status(200).json(successResponse('Socket connection found'));
 
-    res.status(404).json(failureResponse('Socket connection not found', {
-    }));
+  
 
   } catch (error: any) {
     res.status(500).json(failureResponse(error.message));

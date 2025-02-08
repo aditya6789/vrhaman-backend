@@ -37,11 +37,11 @@ const vendorVehicleSchema = new Schema({
   five_day_rate: { type: Number, required: true },
   six_day_rate: { type: Number, required: true },
   weekly_rate: { type: Number, required: true },
-  // one_week_rate: { type: Number, required: true },
+
   two_week_rate: { type: Number, required: true },
   three_week_rate: { type: Number, required: true },
   monthly_rate: { type: Number, required: true },
-  // one_month_rate: { type: Number, required: true },
+ 
   two_month_rate: { type: Number, required: true },
   three_month_rate: { type: Number, required: true },
   delivery_fee: { type: Number, required: true },
